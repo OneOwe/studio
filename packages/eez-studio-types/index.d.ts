@@ -454,8 +454,6 @@ interface AssetsMap {
         flowIndex: number;
         path: string;
         readablePath: string;
-        // name of the page layout, if flow is the page built for the page layout
-        pageLayout?: string;
         components: {
             componentIndex: number;
             path: string;
@@ -601,6 +599,7 @@ export interface IWasmFlowRuntime {
     _arrayValueSetElementValue(arrayValuePtr: number, elementIndex: number, value: number): void;
 
     _valueFree(valuePtr: number): void;
+    _getValueForInspection(valuePtr: number): number;
 
     _getGlobalVariable(globalVariableIndex: number): number;
     _setGlobalVariable(globalVariableIndex: number, valuePtr: number): void;

@@ -259,6 +259,8 @@ export interface PropertyInfo {
         propertyInfo: PropertyInfo
     ) => string;
     partOfNavigation?: boolean;
+    // the project checks don't look into this object or array
+    skipChecks?: boolean;
     fileFilters?: any;
 
     flowProperty?:
@@ -266,6 +268,8 @@ export interface PropertyInfo {
         | ((object: IEezObject | undefined) => FlowPropertyType | undefined);
     expressionType?: ValueType;
     expressionIsConstant?: boolean;
+    // Literal list of assignable targets passed synchronously to a native action.
+    assignableList?: boolean;
     isOutputOptional?:
         | boolean
         | ((object: IEezObject, propertyInfo: PropertyInfo) => boolean);
@@ -309,11 +313,6 @@ export interface PropertyInfo {
     hideElementIndexInPropertyGrid?: boolean;
 
     noColSpanForArray?: boolean;
-
-    // widget property which value can be different in each page layout
-    // (see PageLayout), the values which are different from the default
-    // are stored in the Widget.layoutProperties
-    layoutSpecific?: boolean;
 }
 
 export type InheritedValue =
@@ -686,6 +685,9 @@ export interface IObjectClassInfo {
     displayName?: string;
     componentPaletteGroupName?: string;
     props?: any;
+    // the icon in the palette instead of the icon of the class (the text of
+    // an SVG image), see WidgetPreset
+    svgIcon?: string;
 }
 
 export function getClassesDerivedFrom(

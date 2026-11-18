@@ -28,6 +28,7 @@ import { visitObjects } from "project-editor/core/search";
 import { CommentActionComponent } from "project-editor/flow/components/actions";
 import {
     buildAssignableExpression,
+    buildAssignableListExpression,
     buildExpression,
     operationIndexes,
     templateLiteralToExpression
@@ -187,8 +188,11 @@ function buildComponent(
     const componentIndex = assets.getComponentIndex(component);
     assets.map.flows[flowIndex].components[componentIndex] = {
         componentIndex,
-        path: getObjectPathAsString(component),
-        readablePath: getHumanReadableObjectPath(component),
+        // the paths are for the debugger, the editor build has no use of them
+        path: assets.editorBuild ? "" : getObjectPathAsString(component),
+        readablePath: assets.editorBuild
+            ? ""
+            : getHumanReadableObjectPath(component),
         inputIndexes: {},
         outputs: [],
         outputIndexes: {},
@@ -283,6 +287,10 @@ function buildComponent(
                                 propertyInfo.expressionType,
                                 expression
                             )
+                        );
+                    } else if (propertyInfo.assignableList) {
+                        buildAssignableListExpression(
+                            assets, dataBuffer, component, expression
                         );
                     } else if (flowProperty == "assignable") {
                         buildAssignableExpression(
@@ -436,9 +444,10 @@ function buildFlow(assets: Assets, dataBuffer: DataBuffer, flow: Flow) {
 
     assets.map.flows[flowIndex] = {
         flowIndex,
-        path: getObjectPathAsString(flow),
-        readablePath: getHumanReadableObjectPath(flow),
-        pageLayout: assets.pageLayout?.name,
+        path: assets.editorBuild ? "" : getObjectPathAsString(flow),
+        readablePath: assets.editorBuild
+            ? ""
+            : getHumanReadableObjectPath(flow),
         components: [],
         componentIndexes: {},
         componentInputs: [],
@@ -545,11 +554,9 @@ export function buildFlowData(assets: Assets, dataBuffer: DataBuffer) {
     if (assets.projectStore.projectTypeTraits.hasFlowSupport) {
         dataBuffer.writeObjectOffset(() => {
             // flows
-            dataBuffer.writeArray(assets.flows, (flow, i) => {
+            dataBuffer.writeArray(assets.flows, flow => {
                 if (flow) {
-                    assets.buildInPageLayout(assets.getFlowPageLayout(i), () =>
-                        buildFlow(assets, dataBuffer, flow)
-                    );
+                    buildFlow(assets, dataBuffer, flow);
                 }
             });
 
